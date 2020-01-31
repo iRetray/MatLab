@@ -31,16 +31,12 @@ disp(cadena)
 
 %ahora vamos a dibujar los valores
 %ones dibuja una matriz de x,y lleno de unos, al igual que zeros
-
+ones(1,3)
+zeros(4,4)
 
 %usando en este caso un tiempo para cada bit
 tb = 500
-
-uno = ones(1,tb);
-cero = zeros(1,tb);
-
-frame = [ ];
-
+frame = [];
 for n=1:length(cadena)
     if(cadena(n)=='1')
         frame = [ frame uno ];
@@ -50,17 +46,12 @@ for n=1:length(cadena)
   
 end
 
-cadenaBits = frame*5
+cadenaBits =
 
 disp(frame)
 
-subplot(2,1,1),plot(frame)
-axis([ 0 length(frame) -1 2])
-title('Señal binaria')
-grid on
-
-subplot(2,1,2),plot(cadenaBits)
-axis([ 0 length(frame) -1 6])
-title('Cadena de bits')
+subplot()
+plot(frame)
+axis()
 grid on
 
