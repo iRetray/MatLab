@@ -34,33 +34,43 @@ disp(cadena)
 
 
 %usando en este caso un tiempo para cada bit
-tb = 500
+tb = 500;
 
 uno = ones(1,tb);
 cero = zeros(1,tb);
 
 frame = [ ];
+frameInv = [];
+
 
 for n=1:length(cadena)
     if(cadena(n)=='1')
         frame = [ frame uno ];
+        frameInv = [frameInv cero];
     else
-        frame = [ frame cero ]
+        frame = [ frame cero ];
+        frameInv = [frameInv uno];
     end
   
 end
 
-cadenaBits = frame*5
+cadenaBits = frame*5;
+cadenaInversa  = frameInv*5;
 
-disp(frame)
 
-subplot(2,1,1),plot(frame)
+
+subplot(3,1,1),plot(frame)
 axis([ 0 length(frame) -1 2])
 title('Señal binaria')
 grid on
 
-subplot(2,1,2),plot(cadenaBits)
+subplot(3,1,2),plot(cadenaBits)
 axis([ 0 length(frame) -1 6])
 title('Cadena de bits')
+grid on
+
+subplot(3,1,3),plot(cadenaInversa)
+axis([ 0 length(cadenaInversa) -1 6])
+title('Cadena de bits inversa')
 grid on
 
