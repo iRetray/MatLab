@@ -1,0 +1,38 @@
+clc
+clear global
+close all
+
+% ENTRADAS
+n = 1;
+frecuencia = 10e3;
+contador = 0;
+
+% PROCESOS
+tiempo = linspace(0,cantidadPeriodos/frecuencia,resolucion);
+componente1 = (1/1)*sin(2*pi*frecuencia*tiempo);
+componente2 = (1/3)*sin(2*pi*3*frecuencia*tiempo);
+cuadrada = componente1 + componente2;
+
+for coeficiente = 1:+2:11
+    componente = (1/coeficiente)*sin(2*pi*coeficiente*frecuencia*tiempo);
+    cuadrada = cuadrada + componente;
+    
+end
+
+texto = cat(2,'')
+
+figure(1)
+plot(tiempo,cuadrada)
+title('Resultante serie de Fourier hasta')
+% SALIDAS
+figure(1)
+plot(tiempo,cuadrada)
+title('Un componente')
+grid on
+
+
+figure(1)
+subplot(2,2,1)
+plot(tiempo,sinusoidal_0)
+title('Gráfica Senoidal de Seno')
+grid on

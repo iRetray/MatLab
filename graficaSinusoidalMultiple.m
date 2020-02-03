@@ -16,7 +16,7 @@ tiempo = linspace(0,cantidadPeriodos/frecuencia,resolucion);
 sinusoidal_0 = amplitud*sin(2*pi*frecuencia*tiempo+0);
 sinusoidal_90 = amplitud*sin(2*pi*frecuencia*tiempo+pi/2);
 sinusoidal_180 = amplitud*sin(2*pi*frecuencia*tiempo+pi);
-sinusoidal_270 = amplitud*sin(2*pi*frecuencia*tiempo+3pi/2);
+sinusoidal_270 = amplitud*sin(2*pi*frecuencia*tiempo+3*pi/2);
 
 % salidas
 figure(1)
@@ -28,17 +28,17 @@ grid on
 figure(1)
 subplot(2,2,2)
 plot(tiempo,sinusoidal_90)
-title('Gráfica Senoidal de Seno')
+title('Gráfica Senoidal de Coseno')
 grid on
 
 figure(1)
 subplot(2,2,3)
 plot(tiempo,sinusoidal-180)
-title('Gráfica Senoidal de Seno')
+title('Gráfica Senoidal de Seno Invertido')
 grid on
 
 figure(1)
 subplot(2,2,4)
 plot(tiempo,sinusoidal_270)
-title('Gráfica Senoidal de Seno')
+title('Gráfica Senoidal de Coseno Invertido')
 grid on
