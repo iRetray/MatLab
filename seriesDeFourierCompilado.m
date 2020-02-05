@@ -42,7 +42,7 @@ dienteSierra = (pi-2) * diente;
 
 % SALIDAS
 
-textoCuadrada = cat(2,'Serie de Fourier Cuadrada con ', num2str(repeticiones),' repeticiones');
+textoCuadrada = cat(2,'Serie de Fourier Cuadrada');
 
 figure(1)
 subplot(2,2,2);
