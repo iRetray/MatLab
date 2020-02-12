@@ -1,6 +1,6 @@
 % comandos para darle limpieza al entorno
 clc
-clear all
+clear global
 close all
 
 %reduce las salidas de pantalla
