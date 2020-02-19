@@ -1,0 +1,340 @@
+classdef TransmisorDigital < matlab.apps.AppBase
+
+    % Properties that correspond to app components
+    properties (Access = public)
+        UIFigure                    matlab.ui.Figure
+        TransmisordigitalLabel      matlab.ui.control.Label
+        binaria                     matlab.ui.control.UIAxes
+        ASK                         matlab.ui.control.UIAxes
+        BPSK                        matlab.ui.control.UIAxes
+        EPSK                        matlab.ui.control.UIAxes
+        FSK                         matlab.ui.control.UIAxes
+        ConfiguracionesLabel        matlab.ui.control.Label
+        generar                     matlab.ui.control.Button
+        PeriodosporbitLabel         matlab.ui.control.Label
+        periodos                    matlab.ui.control.NumericEditField
+        SealbinariaamodularDropDownLabel  matlab.ui.control.Label
+        binariaSelect               matlab.ui.control.DropDown
+        FrecuenciaaltaparaFSKLabel  matlab.ui.control.Label
+        alta                        matlab.ui.control.NumericEditField
+        FrecuenciabajaparaFSKLabel  matlab.ui.control.Label
+        baja                        matlab.ui.control.NumericEditField
+    end
+
+    % Callbacks that handle component events
+    methods (Access = private)
+
+        % Button pushed function: generar
+        function generarButtonPushed(app, event)
+            senalEntrada = app.binariaSelect.Value;
+  
+                if (senalEntrada=="101010101")
+                    g = [1 0 1 0 1 0 1 0 1];
+                elseif ((senalEntrada=="001100110"))
+                    g = [0 0 1 1 0 0 1 1 0];
+                elseif ((senalEntrada=="110000001"))
+                    g = [1 1 0 0 0 0 0 0 1];
+                elseif ((senalEntrada=="001000010"))
+                    g = [0 0 1 0 0 0 0 1 0];
+                end
+
+                frecuenciaDeCadaBit = app.periodos.Value;
+                
+                t = 0:2*pi/99:2*pi;
+                cp = [];sp=[];
+                mod = [];mod1=[];bit=[];
+                
+                for n=1:length(g)
+                    if g(n)==0
+                        die=ones(1,100);
+                        se=zeros(1,100);
+                    else
+                        die=2*ones(1,100);
+                        se=ones(1,100);
+                    end
+                    c=sin(frecuenciaDeCadaBit*t);
+                    cp=[cp die];
+                    mod=[mod c];
+                    bit=[bit se];
+                end
+                
+                ask=cp.*mod;
+                
+                plot(app.binaria,bit)
+                grid on
+                
+                plot(app.ASK,ask)
+                grid on
+                
+                t=0:2*pi/99:2*pi;
+                cp1=[];sp1=[];
+                mod1=[];mod2=[];bit1=[];
+                
+                for n=1:length(g);
+                    if g(n)==0;
+                        die=-ones(1,100);   %Modulante
+                        se=zeros(1,100);    %Señal
+                    else g(n)==1;
+                        die=ones(1,100);    %Modulante
+                        se=ones(1,100);     %Señal
+                    end
+                    c=sin(frecuenciaDeCadaBit*t);
+                    cp1=[cp1 die];
+                    mod1=[mod1 c];
+                    bit1=[bit1 se];
+                end
+                
+                bpsk=cp1.*mod1;
+                
+                plot(app.BPSK,bpsk)
+                grid on
+                
+                l=length(g);
+                r=l/3;
+                re=ceil(r);
+                val=re-r;
+               
+                
+                
+                t=0:2*pi/149:2*pi;
+                cp=[];sp=[];
+                mod=[];mod1=[];bit=[];
+                
+                for n=1:3:length(g);
+                    if g(n)==0 && g(n+1)==1 && g(n+2)==1
+                        die=cos(pi/8)*ones(1,150);
+                        die1=sin(pi/8)*ones(1,150);
+                        se=[zeros(1,50) ones(1,50) ones(1,50)];
+                
+                    elseif g(n)==0 && g(n+1)==1 && g(n+2)==0
+                        die=cos(3*pi/8)*ones(1,150);
+                        die1=sin(3*pi/8)*ones(1,150);
+                        se=[zeros(1,50) ones(1,50) zeros(1,50)];
+                
+                    elseif g(n)==0 && g(n+1)==0  && g(n+2)==0
+                        die=cos(5*pi/8)*ones(1,150);
+                        die1=sin(5*pi/8)*ones(1,150);
+                        se=[zeros(1,50) zeros(1,50) zeros(1,50)];
+                
+                    elseif g(n)==0 && g(n+1)==0  && g(n+2)==1
+                        die=cos(7*pi/8)*ones(1,150);
+                        die1=sin(7*pi/8)*ones(1,150);
+                        se=[zeros(1,50) zeros(1,50) ones(1,50)];
+                
+                    elseif g(n)==1 && g(n+1)==0  && g(n+2)==1
+                        die=cos(-7*pi/8)*ones(1,150);
+                        die1=sin(-7*pi/8)*ones(1,150);
+                        se=[ones(1,50) zeros(1,50) ones(1,50)];
+                
+                    elseif g(n)==1 && g(n+1)==0  && g(n+2)==0
+                        die=cos(-5*pi/8)*ones(1,150);
+                        die1=sin(-5*pi/8)*ones(1,150);
+                        se=[ones(1,50) zeros(1,50) zeros(1,50)];
+                
+                    elseif g(n)==1 && g(n+1)==1  && g(n+2)==0
+                        die=cos(-3*pi/8)*ones(1,150);
+                        die1=sin(-3*pi/8)*ones(1,150);
+                        se=[ones(1,50) ones(1,50) zeros(1,50)];
+                
+                    elseif g(n)==1 && g(n+1)==1  && g(n+2)==1
+                        die=cos(-pi/8)*ones(1,150);
+                        die1=sin(-pi/8)*ones(1,150);
+                        se=[ones(1,50) ones(1,50) ones(1,50)];
+                
+                    end
+                    c=cos(frecuenciaDeCadaBit*t);
+                    s=sin(frecuenciaDeCadaBit*t);
+                    cp=[cp die];    %Amplitude cosino
+                    sp=[sp -die1];  %Amplitude sino
+                    mod=[mod c];    %cosino carrier (Q)
+                    mod1=[mod1 s];  %sino carrier   (I)
+                    bit=[bit se];
+                end
+                opsk=cp.*mod+sp.*mod1;
+                
+                plot(app.EPSK,opsk)
+                grid on
+                
+                
+                %f0=1;
+                %f1=2;
+                f0=app.baja.Value;
+                f1=app.alta.Value;
+                
+                
+                val0=ceil(f0)-f0;
+                val1=ceil(f1)-f1;
+               
+                
+                
+                t=0:2*pi/99:2*pi;
+                cp=[];sp=[];
+                mod=[];mod1=[];bit=[];
+                
+                for n=1:length(g);
+                    if g(n)==0;
+                        die=ones(1,100);
+                        c=sin(f0*t);
+                        se=zeros(1,100);
+                    else g(n)==1;
+                        die=ones(1,100);
+                        c=sin(f1*t);
+                        se=ones(1,100);
+                    end
+                    cp=[cp die];
+                    mod=[mod c];
+                    bit=[bit se];
+                end
+                
+                ask=cp.*mod;
+                
+                plot(app.FSK,ask)
+                grid on
+                
+                close all
+        end
+    end
+
+    % Component initialization
+    methods (Access = private)
+
+        % Create UIFigure and components
+        function createComponents(app)
+
+            % Create UIFigure and hide until all components are created
+            app.UIFigure = uifigure('Visible', 'off');
+            app.UIFigure.Position = [100 100 1211 677];
+            app.UIFigure.Name = 'UI Figure';
+
+            % Create TransmisordigitalLabel
+            app.TransmisordigitalLabel = uilabel(app.UIFigure);
+            app.TransmisordigitalLabel.HorizontalAlignment = 'center';
+            app.TransmisordigitalLabel.FontSize = 22;
+            app.TransmisordigitalLabel.Position = [527 634 178 27];
+            app.TransmisordigitalLabel.Text = 'Transmisor digital';
+
+            % Create binaria
+            app.binaria = uiaxes(app.UIFigure);
+            title(app.binaria, 'Señal binaria')
+            xlabel(app.binaria, 'Tiempo')
+            ylabel(app.binaria, 'Voltaje')
+            app.binaria.Position = [48 481 1128 124];
+
+            % Create ASK
+            app.ASK = uiaxes(app.UIFigure);
+            title(app.ASK, 'Modulación ASK')
+            xlabel(app.ASK, 'Tiempo')
+            ylabel(app.ASK, 'Amplitud')
+            app.ASK.Position = [48 362 555 107];
+
+            % Create BPSK
+            app.BPSK = uiaxes(app.UIFigure);
+            title(app.BPSK, 'Modulación BPSK')
+            xlabel(app.BPSK, 'Tiempo')
+            ylabel(app.BPSK, 'Amplitud')
+            app.BPSK.Position = [621 362 555 107];
+
+            % Create EPSK
+            app.EPSK = uiaxes(app.UIFigure);
+            title(app.EPSK, 'Modulación EPSK')
+            xlabel(app.EPSK, 'Tiempo')
+            ylabel(app.EPSK, 'Amplitud')
+            app.EPSK.Position = [48 233 555 107];
+
+            % Create FSK
+            app.FSK = uiaxes(app.UIFigure);
+            title(app.FSK, 'Modulación FSK')
+            xlabel(app.FSK, 'Tiempo')
+            ylabel(app.FSK, 'Amplitud')
+            app.FSK.Position = [621 233 555 107];
+
+            % Create ConfiguracionesLabel
+            app.ConfiguracionesLabel = uilabel(app.UIFigure);
+            app.ConfiguracionesLabel.HorizontalAlignment = 'center';
+            app.ConfiguracionesLabel.FontSize = 17;
+            app.ConfiguracionesLabel.FontWeight = 'bold';
+            app.ConfiguracionesLabel.Position = [541 182 140 22];
+            app.ConfiguracionesLabel.Text = 'Configuraciones';
+
+            % Create generar
+            app.generar = uibutton(app.UIFigure, 'push');
+            app.generar.ButtonPushedFcn = createCallbackFcn(app, @generarButtonPushed, true);
+            app.generar.FontSize = 18;
+            app.generar.Position = [527 29 150 29];
+            app.generar.Text = {'Generar gráficas'; ''};
+
+            % Create PeriodosporbitLabel
+            app.PeriodosporbitLabel = uilabel(app.UIFigure);
+            app.PeriodosporbitLabel.HorizontalAlignment = 'center';
+            app.PeriodosporbitLabel.Position = [653 142 90 22];
+            app.PeriodosporbitLabel.Text = 'Periodos por bit';
+
+            % Create periodos
+            app.periodos = uieditfield(app.UIFigure, 'numeric');
+            app.periodos.HorizontalAlignment = 'center';
+            app.periodos.Position = [755 142 46 22];
+
+            % Create SealbinariaamodularDropDownLabel
+            app.SealbinariaamodularDropDownLabel = uilabel(app.UIFigure);
+            app.SealbinariaamodularDropDownLabel.HorizontalAlignment = 'right';
+            app.SealbinariaamodularDropDownLabel.Position = [295 142 132 22];
+            app.SealbinariaamodularDropDownLabel.Text = 'Señal binaria a modular';
+
+            % Create binariaSelect
+            app.binariaSelect = uidropdown(app.UIFigure);
+            app.binariaSelect.Items = {'101010101', '001100110', '110000001', '001000010'};
+            app.binariaSelect.Position = [442 142 100 22];
+            app.binariaSelect.Value = '101010101';
+
+            % Create FrecuenciaaltaparaFSKLabel
+            app.FrecuenciaaltaparaFSKLabel = uilabel(app.UIFigure);
+            app.FrecuenciaaltaparaFSKLabel.HorizontalAlignment = 'center';
+            app.FrecuenciaaltaparaFSKLabel.Position = [400 101 142 22];
+            app.FrecuenciaaltaparaFSKLabel.Text = 'Frecuencia alta para FSK';
+
+            % Create alta
+            app.alta = uieditfield(app.UIFigure, 'numeric');
+            app.alta.HorizontalAlignment = 'center';
+            app.alta.Position = [553 101 50 22];
+
+            % Create FrecuenciabajaparaFSKLabel
+            app.FrecuenciabajaparaFSKLabel = uilabel(app.UIFigure);
+            app.FrecuenciabajaparaFSKLabel.HorizontalAlignment = 'center';
+            app.FrecuenciabajaparaFSKLabel.Position = [620 101 145 22];
+            app.FrecuenciabajaparaFSKLabel.Text = 'Frecuencia baja para FSK';
+
+            % Create baja
+            app.baja = uieditfield(app.UIFigure, 'numeric');
+            app.baja.HorizontalAlignment = 'center';
+            app.baja.Position = [774 101 50 22];
+
+            % Show the figure after all components are created
+            app.UIFigure.Visible = 'on';
+        end
+    end
+
+    % App creation and deletion
+    methods (Access = public)
+
+        % Construct app
+        function app = TransmisorDigital
+
+            % Create UIFigure and components
+            createComponents(app)
+
+            % Register the app with App Designer
+            registerApp(app, app.UIFigure)
+
+            if nargout == 0
+                clear app
+            end
+        end
+
+        % Code that executes before app deletion
+        function delete(app)
+
+            % Delete UIFigure when app is deleted
+            delete(app.UIFigure)
+        end
+    end
+end

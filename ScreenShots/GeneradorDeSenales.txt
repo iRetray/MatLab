@@ -1,0 +1,269 @@
+classdef TransmisorAnalogo < matlab.apps.AppBase
+
+    % Properties that correspond to app components
+    properties (Access = public)
+        UIFigure                  matlab.ui.Figure
+        TransmisoranlogoLabel     matlab.ui.control.Label
+        analoga                   matlab.ui.control.UIAxes
+        carrier                   matlab.ui.control.UIAxes
+        am                        matlab.ui.control.UIAxes
+        fm                        matlab.ui.control.UIAxes
+        pm                        matlab.ui.control.UIAxes
+        ConfiguracionesLabel      matlab.ui.control.Label
+        generar                   matlab.ui.control.Button
+        VoltajecarrierLabel       matlab.ui.control.Label
+        voltaje                   matlab.ui.control.NumericEditField
+        CantidaddePeriodosparaelcarrierLabel  matlab.ui.control.Label
+        periodosCarrier           matlab.ui.control.NumericEditField
+        VoltajemodulacionesLabel  matlab.ui.control.Label
+        voltajeModulacion         matlab.ui.control.NumericEditField
+        CantidaddePeriodosparalasmodulacionesLabel  matlab.ui.control.Label
+        periodosModulacion        matlab.ui.control.NumericEditField
+        IndicedemodulacionAM04EditFieldLabel  matlab.ui.control.Label
+        modAM                     matlab.ui.control.NumericEditField
+        IndicedemodulacionFM02EditFieldLabel  matlab.ui.control.Label
+        modFM                     matlab.ui.control.NumericEditField
+        IndicedemodulacionPM02EditFieldLabel  matlab.ui.control.Label
+        modPM                     matlab.ui.control.NumericEditField
+    end
+
+    % Callbacks that handle component events
+    methods (Access = private)
+
+        % Button pushed function: generar
+        function generarButtonPushed(app, event)
+                %carrier
+                Ac = app.voltaje.Value;
+                fc = 1000e3;
+                thetac = 0;
+                cpc = app.periodosCarrier.Value;
+                
+                %xt
+                Ax = app.voltajeModulacion.Value;
+                fx = 3400;
+                thetax = 0;
+                cpx = app.periodosModulacion.Value;
+                
+                %indice modulacion 0 <= m <= 0.4 
+                m = app.modAM.Value;
+                %indice modulacion M, npm >=2
+                nfm = app.modFM.Value;
+                %indice modulacion PM, npm >=2
+                npm = app.modPM.Value;
+                
+                %--------PROCESS------
+                %carrier
+                tc = linspace(0,cpc/fc,500);
+                carrier = Ac*sin(2*pi*fc*tc + thetac);
+                
+                %xt
+                tx = linspace(0,cpx/fx,500);
+                xt = Ax*sin(2*pi*fx*tx + thetax);
+                
+                %Modulacion AM
+                xam = (1+m*xt).*carrier;
+                
+                %modulacion FM
+                xfm = Ac*sin(2*pi*fc*tc + nfm*xt);
+                
+                
+                %modulacion PM
+                xt_diff = Ax*sin(2*pi*fx*tx + (thetax+pi/2));
+                xpm = Ac*sin(2*pi*fc*tc + npm*xt_diff);
+                
+                %--------OUTPUT-------
+                
+                plot(app.analoga,tx,xt)
+                grid on
+                
+                plot(app.carrier,tc,carrier)
+                grid on
+                
+                plot(app.am,tc,xam)
+                grid on
+                
+                plot(app.fm,tc,xfm)
+                grid on
+                
+                plot(app.pm,tc,xpm)
+                grid on
+                
+                close all
+        end
+    end
+
+    % Component initialization
+    methods (Access = private)
+
+        % Create UIFigure and components
+        function createComponents(app)
+
+            % Create UIFigure and hide until all components are created
+            app.UIFigure = uifigure('Visible', 'off');
+            app.UIFigure.Position = [100 100 1220 793];
+            app.UIFigure.Name = 'UI Figure';
+
+            % Create TransmisoranlogoLabel
+            app.TransmisoranlogoLabel = uilabel(app.UIFigure);
+            app.TransmisoranlogoLabel.HorizontalAlignment = 'center';
+            app.TransmisoranlogoLabel.FontSize = 22;
+            app.TransmisoranlogoLabel.Position = [512 749 200 27];
+            app.TransmisoranlogoLabel.Text = 'Transmisor análogo';
+
+            % Create analoga
+            app.analoga = uiaxes(app.UIFigure);
+            title(app.analoga, 'Señal análoga')
+            xlabel(app.analoga, 'Tiempo')
+            ylabel(app.analoga, 'Amplitud')
+            app.analoga.Position = [48 597 1128 124];
+
+            % Create carrier
+            app.carrier = uiaxes(app.UIFigure);
+            title(app.carrier, 'Señal portadora del carrier')
+            xlabel(app.carrier, 'Tiempo')
+            ylabel(app.carrier, 'Amplitud')
+            app.carrier.Position = [48 478 555 107];
+
+            % Create am
+            app.am = uiaxes(app.UIFigure);
+            title(app.am, 'Modulación de la Amplitud AM')
+            xlabel(app.am, 'Tiempo')
+            ylabel(app.am, 'Amplitud')
+            app.am.Position = [621 478 555 107];
+
+            % Create fm
+            app.fm = uiaxes(app.UIFigure);
+            title(app.fm, 'Modulación de la Frecuencia FM')
+            xlabel(app.fm, 'Tiempo')
+            ylabel(app.fm, 'Amplitud')
+            app.fm.Position = [48 349 555 107];
+
+            % Create pm
+            app.pm = uiaxes(app.UIFigure);
+            title(app.pm, 'Modulación del Pulso PM')
+            xlabel(app.pm, 'Tiempo')
+            ylabel(app.pm, 'Amplitud')
+            app.pm.Position = [621 349 555 107];
+
+            % Create ConfiguracionesLabel
+            app.ConfiguracionesLabel = uilabel(app.UIFigure);
+            app.ConfiguracionesLabel.HorizontalAlignment = 'center';
+            app.ConfiguracionesLabel.FontSize = 17;
+            app.ConfiguracionesLabel.FontWeight = 'bold';
+            app.ConfiguracionesLabel.Position = [541 298 140 22];
+            app.ConfiguracionesLabel.Text = 'Configuraciones';
+
+            % Create generar
+            app.generar = uibutton(app.UIFigure, 'push');
+            app.generar.ButtonPushedFcn = createCallbackFcn(app, @generarButtonPushed, true);
+            app.generar.FontSize = 18;
+            app.generar.Position = [541 37 150 29];
+            app.generar.Text = {'Generar gráficas'; ''};
+
+            % Create VoltajecarrierLabel
+            app.VoltajecarrierLabel = uilabel(app.UIFigure);
+            app.VoltajecarrierLabel.HorizontalAlignment = 'center';
+            app.VoltajecarrierLabel.Position = [415 253 79 22];
+            app.VoltajecarrierLabel.Text = 'Voltaje carrier';
+
+            % Create voltaje
+            app.voltaje = uieditfield(app.UIFigure, 'numeric');
+            app.voltaje.HorizontalAlignment = 'center';
+            app.voltaje.Position = [512 253 46 22];
+
+            % Create CantidaddePeriodosparaelcarrierLabel
+            app.CantidaddePeriodosparaelcarrierLabel = uilabel(app.UIFigure);
+            app.CantidaddePeriodosparaelcarrierLabel.HorizontalAlignment = 'center';
+            app.CantidaddePeriodosparaelcarrierLabel.Position = [580 253 199 22];
+            app.CantidaddePeriodosparaelcarrierLabel.Text = 'Cantidad de Periodos para el carrier';
+
+            % Create periodosCarrier
+            app.periodosCarrier = uieditfield(app.UIFigure, 'numeric');
+            app.periodosCarrier.HorizontalAlignment = 'center';
+            app.periodosCarrier.Position = [787 253 45 22];
+
+            % Create VoltajemodulacionesLabel
+            app.VoltajemodulacionesLabel = uilabel(app.UIFigure);
+            app.VoltajemodulacionesLabel.HorizontalAlignment = 'center';
+            app.VoltajemodulacionesLabel.Position = [381 221 119 22];
+            app.VoltajemodulacionesLabel.Text = 'Voltaje modulaciones';
+
+            % Create voltajeModulacion
+            app.voltajeModulacion = uieditfield(app.UIFigure, 'numeric');
+            app.voltajeModulacion.HorizontalAlignment = 'center';
+            app.voltajeModulacion.Position = [512 221 46 22];
+
+            % Create CantidaddePeriodosparalasmodulacionesLabel
+            app.CantidaddePeriodosparalasmodulacionesLabel = uilabel(app.UIFigure);
+            app.CantidaddePeriodosparalasmodulacionesLabel.HorizontalAlignment = 'center';
+            app.CantidaddePeriodosparalasmodulacionesLabel.Position = [583 221 246 22];
+            app.CantidaddePeriodosparalasmodulacionesLabel.Text = 'Cantidad de Periodos para las modulaciones';
+
+            % Create periodosModulacion
+            app.periodosModulacion = uieditfield(app.UIFigure, 'numeric');
+            app.periodosModulacion.HorizontalAlignment = 'center';
+            app.periodosModulacion.Position = [840 221 50 22];
+
+            % Create IndicedemodulacionAM04EditFieldLabel
+            app.IndicedemodulacionAM04EditFieldLabel = uilabel(app.UIFigure);
+            app.IndicedemodulacionAM04EditFieldLabel.HorizontalAlignment = 'center';
+            app.IndicedemodulacionAM04EditFieldLabel.Position = [497 177 169 22];
+            app.IndicedemodulacionAM04EditFieldLabel.Text = 'Indice de modulacion AM (0-4)';
+
+            % Create modAM
+            app.modAM = uieditfield(app.UIFigure, 'numeric');
+            app.modAM.HorizontalAlignment = 'center';
+            app.modAM.Position = [679 177 45 22];
+
+            % Create IndicedemodulacionFM02EditFieldLabel
+            app.IndicedemodulacionFM02EditFieldLabel = uilabel(app.UIFigure);
+            app.IndicedemodulacionFM02EditFieldLabel.HorizontalAlignment = 'center';
+            app.IndicedemodulacionFM02EditFieldLabel.Position = [498 142 168 22];
+            app.IndicedemodulacionFM02EditFieldLabel.Text = 'Indice de modulacion FM (0-2)';
+
+            % Create modFM
+            app.modFM = uieditfield(app.UIFigure, 'numeric');
+            app.modFM.HorizontalAlignment = 'center';
+            app.modFM.Position = [679 142 45 22];
+
+            % Create IndicedemodulacionPM02EditFieldLabel
+            app.IndicedemodulacionPM02EditFieldLabel = uilabel(app.UIFigure);
+            app.IndicedemodulacionPM02EditFieldLabel.HorizontalAlignment = 'center';
+            app.IndicedemodulacionPM02EditFieldLabel.Position = [499 107 169 22];
+            app.IndicedemodulacionPM02EditFieldLabel.Text = 'Indice de modulacion PM (0-2)';
+
+            % Create modPM
+            app.modPM = uieditfield(app.UIFigure, 'numeric');
+            app.modPM.HorizontalAlignment = 'center';
+            app.modPM.Position = [680 107 45 22];
+
+            % Show the figure after all components are created
+            app.UIFigure.Visible = 'on';
+        end
+    end
+
+    % App creation and deletion
+    methods (Access = public)
+
+        % Construct app
+        function app = TransmisorAnalogo
+
+            % Create UIFigure and components
+            createComponents(app)
+
+            % Register the app with App Designer
+            registerApp(app, app.UIFigure)
+
+            if nargout == 0
+                clear app
+            end
+        end
+
+        % Code that executes before app deletion
+        function delete(app)
+
+            % Delete UIFigure when app is deleted
+            delete(app.UIFigure)
+        end
+    end
+end
