@@ -4,7 +4,7 @@ close all
 
 % Entradas de datos
 frecuencia = 10e3;
-repeticiones = 7; % numero impar
+repeticiones = 17; % numero impar
 resolucion = 1000;
 cantidadPeriodos = 2;
 
