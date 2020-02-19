@@ -3,7 +3,7 @@ clear global
 close all
 
 g = [1 1 1 1 0 0 0 0];
-f = 2;
+frecuenciaDeCadaBit = 2;
 
 t = 0:2*pi/99:2*pi;
 cp = [];sp=[];
@@ -17,7 +17,7 @@ for n=1:length(g)
         die=2*ones(1,100);
         se=ones(1,100);
     end
-    c=sin(f*t);
+    c=sin(frecuenciaDeCadaBit*t);
     cp=[cp die];
     mod=[mod c];
     bit=[bit se];

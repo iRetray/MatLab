@@ -10,25 +10,14 @@ function epsk(g,f)
 %See also:
 %http://www.mathworks.com/matlabcentral/fileexchange/loadFile.do?objectId=14328&objectType=FILE
 
-if nargin > 2
-    error('Too many input arguments');
-elseif nargin==1
-    f=1;
-end
-
-if f<1;
-    error('Frequency must be bigger than 1');
-end
+g = [1 1 1 1 0 0];
+  f=1;
 %*-*-*-*-*-*
 l=length(g);
 r=l/3;
 re=ceil(r);
 val=re-r;
 
-if val~=0;
-    error('Please insert a vector divisible for 3');
-end
-%*-*-*-*-*-*
 
 
 t=0:2*pi/149:2*pi;
