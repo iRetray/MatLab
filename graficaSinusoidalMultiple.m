@@ -33,7 +33,7 @@ grid on
 
 figure(1)
 subplot(2,2,3)
-plot(tiempo,sinusoidal-180)
+plot(tiempo,sinusoidal_180)
 title('Gráfica Senoidal de Seno Invertido')
 grid on
 
